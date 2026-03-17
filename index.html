@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finetrix — Gestión financiera para pymes chilenas</title>
+  <meta name="description" content="Convertimos los datos financieros de tu empresa en un sistema de gestión que te permite entender el negocio y tomar mejores decisiones." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0A1628;
+      --navy-800:   #12233F;
+      --navy-700:   #1a3356;
+      --electric:   #2563EB;
+      --electric-h: #1d4ed8;
+      --green:      #10B981;
+      --white:      #ffffff;
+      --gray-50:    #F8FAFC;
+      --gray-100:   #F1F5F9;
+      --gray-300:   #CBD5E1;
+      --gray-500:   #64748B;
+      --gray-700:   #334155;
+      --text:       #0F172A;
+      --radius:     12px;
+      --radius-lg:  20px;
+      --shadow:     0 4px 24px rgba(10,22,40,0.08);
+      --shadow-lg:  0 8px 40px rgba(10,22,40,0.14);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { display: block; max-width: 100%; }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Typography ─── */
+    h1, h2, h3, h4 { line-height: 1.2; font-weight: 700; }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--electric);
+      margin-bottom: 12px;
+    }
+
+    /* ─── Layout helpers ─── */
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section { padding: 96px 0; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--electric);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--electric-h);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.35);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--white);
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,22,40,0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo span {
+      color: var(--electric);
+    }
+
+    .nav-cta {
+      font-size: 0.9rem;
+      padding: 10px 22px;
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      background: var(--navy);
+      padding: 120px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    #hero::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(37,99,235,0.3);
+      color: #93C5FD;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin-bottom: 28px;
+    }
+
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    #hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      color: var(--white);
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    #hero h1 .highlight {
+      color: var(--electric);
+    }
+
+    #hero p.subtitle {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255,255,255,0.7);
+      max-width: 600px;
+      margin-bottom: 40px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .hero-social-proof {
+      margin-top: 64px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .proof-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+    }
+
+    .proof-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    /* ─── PROBLEMA ─── */
+    #problema {
+      background: var(--gray-50);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 64px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      color: var(--navy);
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      font-size: 1.1rem;
+      color: var(--gray-500);
+      line-height: 1.7;
+    }
+
+    .symptoms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .symptom-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 28px;
+      border: 1px solid var(--gray-100);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .symptom-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .symptom-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: #FEF3C7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+
+    .symptom-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .symptom-card p {
+      font-size: 0.92rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    /* ─── QUÉ ES ─── */
+    #que-es {
+      background: var(--white);
+    }
+
+    .que-es-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .que-es-text h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      color: var(--navy);
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .que-es-text p {
+      font-size: 1.05rem;
+      color: var(--gray-700);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.97rem;
+      color: var(--gray-700);
+    }
+
+    .feature-list li::before {
+      content: '';
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'/%3E%3C/svg%3E");
+      background-size: 12px;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-top: 2px;
+    }
+
+    .que-es-visual {
+      background: var(--navy);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .visual-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 4px;
+    }
+
+    .data-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .data-source {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .data-source-icon {
+      font-size: 1.2rem;
+    }
+
+    .data-source-info {
+      flex: 1;
+    }
+
+    .data-source-name {
+      font-size: 0.87rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .data-source-detail {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+    }
+
+    .arrow-down {
+      text-align: center;
+      color: var(--electric);
+      font-size: 1.2rem;
+    }
+
+    .output-box {
+      background: var(--electric);
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .output-box p {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .output-box span {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.75);
+    }
+
+    /* ─── CÓMO FUNCIONA ─── */
+    #como-funciona {
+      background: var(--navy);
+    }
+
+    #como-funciona .section-header h2,
+    #como-funciona .eyebrow { color: var(--white); }
+    #como-funciona .section-header p { color: rgba(255,255,255,0.55); }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      position: relative;
+    }
+
+    .step-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      position: relative;
+    }
+
+    .step-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: rgba(37,99,235,0.3);
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .step-card h3 {
+      font-size: 1.05rem;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .step-card p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.65;
+    }
+
+    /* ─── PARA QUIÉN ─── */
+    #para-quien {
+      background: var(--gray-50);
+    }
+
+    .ideal-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .ideal-left h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      color: var(--navy);
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .ideal-left p {
+      font-size: 1.05rem;
+      color: var(--gray-700);
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+
+    .profile-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .tag {
+      background: var(--white);
+      border: 1.5px solid var(--gray-300);
+      color: var(--gray-700);
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .tag.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: var(--white);
+    }
+
+    .not-for {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 24px;
+      border: 1px solid var(--gray-100);
+    }
+
+    .not-for h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      margin-bottom: 14px;
+    }
+
+    .not-for ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .not-for li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--gray-500);
+    }
+
+    .not-for li::before {
+      content: '×';
+      color: #EF4444;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .ideal-right {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--gray-100);
+    }
+
+    .ideal-right h3 {
+      font-size: 1.1rem;
+      color: var(--navy);
+      margin-bottom: 24px;
+    }
+
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+
+    .check-icon {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      border-radius: 6px;
+      background: #DCFCE7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #16A34A;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    /* ─── POR QUÉ NOSOTROS ─── */
+    #por-que {
+      background: var(--white);
+    }
+
+    .differentiators-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+    }
+
+    .diff-card {
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      border: 1px solid var(--gray-100);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .diff-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .diff-card:nth-child(1) { background: #F0F4FF; }
+    .diff-card:nth-child(2) { background: #F0FDF4; }
+    .diff-card:nth-child(3) { background: #FFF7ED; }
+
+    .diff-icon {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .diff-card h3 {
+      font-size: 1.1rem;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .diff-card p {
+      font-size: 0.93rem;
+      color: var(--gray-700);
+      line-height: 1.7;
+    }
+
+    /* ─── FORMULARIO ─── */
+    #contacto {
+      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #contacto::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: -200px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .contacto-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      align-items: start;
+      position: relative;
+    }
+
+    .contacto-info h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      color: var(--white);
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .contacto-info p {
+      color: rgba(255,255,255,0.6);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+
+    .contact-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .contact-bullets li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,0.75);
+      font-size: 0.95rem;
+    }
+
+    .bullet-icon {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 8px;
+      background: rgba(37,99,235,0.2);
+      border: 1px solid rgba(37,99,235,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    }
+
+    .form-card h3 {
+      font-size: 1.3rem;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .form-card .form-subtitle {
+      font-size: 0.9rem;
+      color: var(--gray-500);
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.87rem;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: 0.97rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--white);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--electric);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    .form-group input::placeholder {
+      color: var(--gray-300);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--electric);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+
+    .form-submit:hover {
+      background: var(--electric-h);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37,99,235,0.4);
+    }
+
+    .form-submit:active {
+      transform: translateY(0);
+    }
+
+    .form-privacy {
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* Success state */
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .form-success.visible {
+      display: block;
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #DCFCE7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 20px;
+    }
+
+    .form-success h4 {
+      font-size: 1.2rem;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .form-success p {
+      font-size: 0.93rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #050D1A;
+      padding: 48px 0 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .footer-brand {
+      max-width: 260px;
+    }
+
+    .footer-brand .logo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .footer-brand .logo span {
+      color: var(--electric);
+    }
+
+    .footer-brand p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+    }
+
+    .footer-links h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 14px;
+    }
+
+    .footer-links ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.55);
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--white);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-bottom p {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      section { padding: 72px 0; }
+
+      .que-es-layout,
+      .ideal-layout,
+      .contacto-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .que-es-visual { order: -1; }
+      .ideal-right { order: -1; }
+    }
+
+    @media (max-width: 640px) {
+      section { padding: 56px 0; }
+      #hero { padding: 80px 0 64px; }
+
+      .form-row { grid-template-columns: 1fr; }
+
+      .hero-social-proof {
+        gap: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-inner { flex-direction: column; }
+
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    /* ─── Scroll indicator ─── */
+    .scroll-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--electric);
+      z-index: 200;
+      transition: width 0.1s linear;
+      width: 0%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll progress indicator -->
+  <div class="scroll-line" id="scrollLine"></div>
+
+  <!-- ─── NAV ─── -->
+  <nav>
+    <div class="container nav-inner">
+      <div class="nav-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect width="24" height="24" rx="6" fill="#2563EB"/>
+          <path d="M7 12h10M7 8h6M7 16h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Finetrix
+      </div>
+      <a href="#contacto" class="btn btn-primary nav-cta">Agenda tu diagnóstico</a>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          Finetrix — CFO as a Service para pymes chilenas
+        </div>
+        <h1>
+          Convierte los números<br>
+          de tu empresa en <span class="highlight">decisiones</span>
+        </h1>
+        <p class="subtitle">
+          Convertimos los datos financieros de tu empresa en un sistema de gestión que te permite entender el negocio y tomar mejores decisiones — sin contratar un CFO de planta — con Finetrix.
+        </p>
+        <div class="hero-actions">
+          <a href="#contacto" class="btn btn-primary">
+            Agenda un diagnóstico gratuito
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="#que-es" class="btn btn-outline">Cómo funciona</a>
+        </div>
+
+        <div class="hero-social-proof">
+          <div class="proof-item">
+            <div class="proof-icon">📊</div>
+            Empresas de 500M–5.000M en ventas
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">🇨🇱</div>
+            100% enfocado en Chile
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">⚡</div>
+            Diagnóstico sin costo
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PROBLEMA ─── -->
+  <section id="problema">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">¿Te identificas?</span>
+        <h2>Tienes los datos. Pero no la claridad.</h2>
+        <p>La mayoría de los dueños de empresa trabajan con información financiera dispersa. Reconoces alguno de estos síntomas?</p>
+      </div>
+      <div class="symptoms-grid">
+        <div class="symptom-card">
+          <div class="symptom-icon">🤔</div>
+          <h3>Tienes contabilidad, pero no sabes si tu empresa es rentable de verdad</h3>
+          <p>El contador entrega el balance, pero eso no te dice cuánto ganaste realmente ni dónde se fue el dinero.</p>
+        </div>
+        <div class="symptom-card">
+          <div class="symptom-icon">📉</div>
+          <h3>El flujo de caja te da sustos a fin de mes</h3>
+          <p>Las ventas van bien, pero la caja no cuadra. No sabes con anticipación cuándo vas a necesitar liquidez.</p>
+        </div>
+        <div class="symptom-card">
+          <div class="symptom-icon">🗂️</div>
+          <h3>Tus datos están en mil partes y nadie los une</h3>
+          <p>El ERP dice una cosa, el banco otra, el Excel del área comercial algo distinto. No hay una sola versión de la verdad.</p>
+        </div>
+        <div class="symptom-card">
+          <div class="symptom-icon">❓</div>
+          <h3>Tomas decisiones grandes sin números que te respalden</h3>
+          <p>¿Conviene abrir esa sucursal? ¿Contratar más gente? Decides por intuición porque no tienes el modelo que lo responda.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── QUÉ ES ─── -->
+  <section id="que-es">
+    <div class="container">
+      <div class="que-es-layout">
+        <div class="que-es-text">
+          <span class="eyebrow">Qué es el servicio</span>
+          <h2>Tu CFO, sin contratar un CFO</h2>
+          <p>
+            No es contabilidad ni reporting básico. Es una capa superior de gestión financiera que ordena tu empresa y te da una visión clara del negocio en tiempo real.
+          </p>
+          <p>
+            Tomamos toda la información que ya tienes — ERP, bancos, SII, ecommerce — la integramos y la convertimos en un sistema de gestión que funciona para ti.
+          </p>
+          <ul class="feature-list">
+            <li>Integración de tus fuentes de datos: ERP, bancos, SII, ecommerce</li>
+            <li>Modelos financieros de gestión adaptados a tu negocio</li>
+            <li>Reporting claro para tomar decisiones con confianza</li>
+            <li>Análisis y acompañamiento periódico con tu equipo</li>
+            <li>Proyecciones de flujo de caja con anticipación real</li>
+          </ul>
+        </div>
+        <div class="que-es-visual">
+          <p class="visual-label">Fuentes de datos</p>
+          <div class="data-flow">
+            <div class="data-source">
+              <span class="data-source-icon">🏦</span>
+              <div class="data-source-info">
+                <div class="data-source-name">Banco / Conciliación</div>
+                <div class="data-source-detail">Movimientos y saldos en tiempo real</div>
+              </div>
+              <div class="status-dot"></div>
+            </div>
+            <div class="data-source">
+              <span class="data-source-icon">🧾</span>
+              <div class="data-source-info">
+                <div class="data-source-name">SII / Facturación</div>
+                <div class="data-source-detail">DTE, IVA, declaraciones</div>
+              </div>
+              <div class="status-dot"></div>
+            </div>
+            <div class="data-source">
+              <span class="data-source-icon">📦</span>
+              <div class="data-source-info">
+                <div class="data-source-name">ERP / Gestión</div>
+                <div class="data-source-detail">Compras, ventas, inventario</div>
+              </div>
+              <div class="status-dot"></div>
+            </div>
+            <div class="data-source">
+              <span class="data-source-icon">🛒</span>
+              <div class="data-source-info">
+                <div class="data-source-name">Ecommerce / Ventas</div>
+                <div class="data-source-detail">Canales digitales y marketplaces</div>
+              </div>
+              <div class="status-dot"></div>
+            </div>
+          </div>
+          <div class="arrow-down">↓</div>
+          <div class="output-box">
+            <p>Dashboard financiero integrado</p>
+            <span>Una sola versión de la verdad</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CÓMO FUNCIONA ─── -->
+  <section id="como-funciona">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow" style="color: #93C5FD;">Proceso</span>
+        <h2 style="color: white;">Simple, rápido y sin interrumpir tu operación</h2>
+        <p>En cuatro pasos pasamos del caos de datos a un sistema de gestión que funciona.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <h3>Diagnóstico gratuito</h3>
+          <p>Conversamos contigo para entender tu empresa, tus sistemas actuales y cuáles son las decisiones financieras que más te cuestan hoy.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <h3>Integración de datos</h3>
+          <p>Conectamos tus fuentes de información — ERP, bancos, SII, planillas — y construimos una base limpia y confiable.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <h3>Modelo financiero</h3>
+          <p>Diseñamos el reporting y los modelos adaptados a tu negocio: P&L de gestión, flujo de caja, rentabilidad por línea, lo que necesitas.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <h3>Acompañamiento continuo</h3>
+          <p>Nos reunimos contigo de forma periódica para revisar los números, analizar desvíos y apoyar las decisiones importantes del negocio.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PARA QUIÉN ─── -->
+  <section id="para-quien">
+    <div class="container">
+      <div class="ideal-layout">
+        <div class="ideal-left">
+          <span class="eyebrow">Para quién es</span>
+          <h2>Hecho para dueños y gerentes de pymes chilenas</h2>
+          <p>
+            Este servicio es para ti si tienes una empresa que factura entre 500 millones y 5.000 millones de pesos al año, sientes que la información financiera no te ayuda a decidir, y sabes que hay algo que mejorar pero no sabes por dónde empezar.
+          </p>
+          <div class="profile-tags">
+            <span class="tag active">Dueño/a de empresa</span>
+            <span class="tag active">Gerente General</span>
+            <span class="tag">500M – 5.000M CLP</span>
+            <span class="tag">Pyme en crecimiento</span>
+            <span class="tag">Múltiples áreas o líneas</span>
+          </div>
+          <div class="not-for">
+            <h4>Este servicio NO es para ti si...</h4>
+            <ul>
+              <li>Necesitas un contador externo básico</li>
+              <li>Estás en etapa de startup sin ventas</li>
+              <li>Ya tienes un equipo financiero estructurado</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ideal-right">
+          <h3>Reconoces estas situaciones en tu empresa?</h3>
+          <ul class="checklist">
+            <li>
+              <span class="check-icon">✓</span>
+              Tus ventas crecen pero no ves ese crecimiento reflejado en la caja
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              No tienes claro cuál línea de negocio o producto es más rentable
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              Te piden proyecciones y las haces a mano en Excel sin mucha confianza
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              Cuando tienes que tomar una decisión grande, los números no están listos
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              Sabes que tu empresa tiene información valiosa, pero nadie la está usando
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── POR QUÉ NOSOTROS ─── -->
+  <section id="por-que">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">Por qué nosotros</span>
+        <h2>Gestión financiera que entiende cómo funciona una pyme</h2>
+        <p>No somos un estudio contable ni una consultora corporativa. Somos especialistas en el mundo financiero de las empresas medianas chilenas.</p>
+      </div>
+      <div class="differentiators-grid">
+        <div class="diff-card">
+          <div class="diff-icon">🎯</div>
+          <h3>Nos enfocamos en gestión, no en compliance</h3>
+          <p>La contabilidad tributaria es obligatoria pero no te ayuda a gestionar. Nosotros construimos la capa de información financiera que sí te sirve para tomar decisiones.</p>
+        </div>
+        <div class="diff-card">
+          <div class="diff-icon">🔗</div>
+          <h3>Integramos lo que ya tienes</h3>
+          <p>No te pedimos que cambies tus sistemas. Trabajamos con tu ERP actual, tu banco, tu SII y tus planillas para crear un modelo unificado que funciona.</p>
+        </div>
+        <div class="diff-card">
+          <div class="diff-icon">🤝</div>
+          <h3>Acompañamiento real, no solo reportes</h3>
+          <p>Entregamos más que un dashboard. Nos reunimos contigo para interpretar los números, identificar riesgos y apoyar las decisiones que mueven el negocio.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FORMULARIO ─── -->
+  <section id="contacto">
+    <div class="container">
+      <div class="contacto-layout">
+        <div class="contacto-info">
+          <span class="eyebrow" style="color: #93C5FD;">Primer paso</span>
+          <h2>Agenda tu diagnóstico gratuito</h2>
+          <p>
+            Una conversación de 30 minutos donde entendemos tu situación actual y te mostramos qué podríamos hacer juntos. Sin compromiso.
+          </p>
+          <ul class="contact-bullets">
+            <li>
+              <span class="bullet-icon">⏱</span>
+              30 minutos, sin costo y sin compromiso
+            </li>
+            <li>
+              <span class="bullet-icon">📞</span>
+              Nos adaptamos a tu horario y formato (videollamada o presencial)
+            </li>
+            <li>
+              <span class="bullet-icon">💡</span>
+              Te llevas insights útiles aunque no sigas adelante
+            </li>
+            <li>
+              <span class="bullet-icon">🔒</span>
+              Tu información es confidencial
+            </li>
+          </ul>
+        </div>
+
+        <div class="form-card">
+          <h3>Cuéntanos sobre tu empresa</h3>
+          <p class="form-subtitle">Te contactamos en menos de 24 horas hábiles.</p>
+
+          <form id="contactForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Juan Pérez" required />
+              </div>
+              <div class="form-group">
+                <label for="empresa">Empresa</label>
+                <input type="text" id="empresa" name="empresa" placeholder="Mi Empresa Ltda." required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="email">Email de trabajo</label>
+              <input type="email" id="email" name="email" placeholder="juan@miempresa.cl" required />
+            </div>
+            <div class="form-group">
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" placeholder="+56 9 1234 5678" />
+            </div>
+            <div class="form-group">
+              <label for="ventas">Ventas anuales aproximadas</label>
+              <input type="text" id="ventas" name="ventas" placeholder="Ej: $1.500 millones CLP" />
+            </div>
+            <button type="submit" class="form-submit">
+              Agendar diagnóstico gratuito →
+            </button>
+            <p class="form-privacy">
+              Tu información es confidencial y no será compartida con terceros.
+            </p>
+          </form>
+
+          <div class="form-success" id="formSuccess">
+            <div class="success-icon">✅</div>
+            <h4>¡Listo! Recibimos tu solicitud</h4>
+            <p>Te contactamos dentro de las próximas 24 horas hábiles para coordinar el diagnóstico. Revisa tu bandeja de entrada.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="logo">Finetrix</div>
+          <p>Gestión financiera para pymes chilenas que quieren crecer con claridad.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Servicio</h4>
+          <ul>
+            <li><a href="#que-es">Qué es</a></li>
+            <li><a href="#como-funciona">Cómo funciona</a></li>
+            <li><a href="#para-quien">Para quién</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Contacto</h4>
+          <ul>
+            <li><a href="mailto:hola@finetrix.cl">hola@finetrix.cl</a></li>
+            <li><a href="tel:+56912345678">+56 9 1234 5678</a></li>
+            <li><a href="#contacto">Agendar reunión</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Finetrix. Todos los derechos reservados.</p>
+        <p>Hecho en Chile 🇨🇱</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ─── Scroll progress bar ───
+    const scrollLine = document.getElementById('scrollLine');
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      scrollLine.style.width = progress + '%';
+    });
+
+    // ─── Form submission ───
+    const form = document.getElementById('contactForm');
+    const formSuccess = document.getElementById('formSuccess');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Basic validation
+      const nombre = document.getElementById('nombre').value.trim();
+      const empresa = document.getElementById('empresa').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!nombre || !empresa || !email) {
+        const firstEmpty = [
+          { el: document.getElementById('nombre'), val: nombre },
+          { el: document.getElementById('empresa'), val: empresa },
+          { el: document.getElementById('email'), val: email }
+        ].find(f => !f.val);
+
+        if (firstEmpty) {
+          firstEmpty.el.style.borderColor = '#EF4444';
+          firstEmpty.el.focus();
+          firstEmpty.el.addEventListener('input', () => {
+            firstEmpty.el.style.borderColor = '';
+          }, { once: true });
+        }
+        return;
+      }
+
+      // Simulate submission
+      const btn = form.querySelector('.form-submit');
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        form.style.display = 'none';
+        formSuccess.classList.add('visible');
+      }, 900);
+    });
+
+    // ─── Smooth scroll for anchor links ───
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const offset = 72;
+          const top = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ─── Fade-in on scroll ───
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.symptom-card, .step-card, .diff-card').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
