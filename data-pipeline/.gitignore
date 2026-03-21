@@ -1,0 +1,27 @@
+# Variables de entorno con credenciales reales (NUNCA subir a git)
+.env
+*.env.local
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Credenciales de Google Cloud descargadas localmente
+*.json
+service-account*.json
+gcp-credentials*.json
+
+# CSVs de datos (pueden contener info sensible del cliente)
+*.csv
+data/
+
+# Logs
+*.log

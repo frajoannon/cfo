@@ -1,0 +1,45 @@
+name: Pipeline ETL Diario
+
+on:
+  schedule:
+    # Corre todos los días a las 06:00 AM hora Chile (UTC-3 = 09:00 UTC)
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    # Permite correrlo manualmente desde GitHub cuando quieras
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: |
+          cd data-pipeline
+          pip install -r requirements.txt
+
+      - name: Crear archivo de credenciales GCP
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS_JSON }}' > data-pipeline/gcp-credentials.json
+
+      - name: Correr pipeline
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          BQ_DATASET_ID: ${{ secrets.BQ_DATASET_ID }}
+          GOOGLE_APPLICATION_CREDENTIALS: gcp-credentials.json
+          SHOPIFY_SHOP_DOMAIN: ${{ secrets.SHOPIFY_SHOP_DOMAIN }}
+          SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+          ML_CLIENT_ID: ${{ secrets.ML_CLIENT_ID }}
+          ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
+          ML_REFRESH_TOKEN: ${{ secrets.ML_REFRESH_TOKEN }}
+          CHIPAX_API_KEY: ${{ secrets.CHIPAX_API_KEY }}
+        run: |
+          cd data-pipeline
+          python main.py
