@@ -107,12 +107,37 @@ def run_pipeline(
         try:
             chipax = chipax_extractor()
 
-            last_chipax_date = loader.get_last_loaded_at("chipax_movements")
+            # Tablas con fecha (carga incremental)
+            chipax_incremental = [
+                ("chipax_movimientos",      chipax.get_movimientos),
+                ("chipax_cartolas",         chipax.get_cartolas),
+                ("chipax_compras",          chipax.get_compras),
+                ("chipax_dtes",             chipax.get_dtes),
+                ("chipax_gastos",           chipax.get_gastos),
+                ("chipax_remuneraciones",   chipax.get_remuneraciones),
+                ("chipax_honorarios",       chipax.get_honorarios),
+            ]
+            for table_name, fn in chipax_incremental:
+                try:
+                    since = loader.get_last_loaded_at(table_name)
+                    rows = fn(since=since)
+                    results[table_name] = loader.upsert(table_name, rows, id_field="id")
+                except Exception as e:
+                    logger.error(f"Error en {table_name}: {e}", exc_info=True)
+                    results[f"{table_name}_error"] = str(e)
 
-            movements = chipax.get_bank_movements(since=last_chipax_date)
-            results["chipax_movements"] = loader.upsert(
-                "chipax_movements", movements, id_field="id"
-            )
+            # Tablas sin fecha (carga completa)
+            chipax_full = [
+                ("chipax_cuentas",              chipax.get_cuentas),
+                ("chipax_cuentas_corrientes",   chipax.get_cuentas_corrientes),
+            ]
+            for table_name, fn in chipax_full:
+                try:
+                    rows = fn()
+                    results[table_name] = loader.upsert(table_name, rows, id_field="id")
+                except Exception as e:
+                    logger.error(f"Error en {table_name}: {e}", exc_info=True)
+                    results[f"{table_name}_error"] = str(e)
 
         except Exception as e:
             logger.error(f"Error en Chipax: {e}", exc_info=True)
@@ -147,7 +172,7 @@ if __name__ == "__main__":
 
     # Saltar fuentes sin credenciales configuradas
     skip_ml = not os.environ.get("ML_CLIENT_ID") or os.environ.get("ML_CLIENT_ID") == "1234567890"
-    skip_chipax = not os.environ.get("CHIPAX_API_KEY") or os.environ.get("CHIPAX_API_KEY").startswith("xxx")
+    skip_chipax = not os.environ.get("CHIPAX_APP_ID") or os.environ.get("CHIPAX_APP_ID").startswith("xxx")
 
     run_pipeline(
         project_id=project_id,

@@ -65,14 +65,104 @@ SCHEMAS = {
         bigquery.SchemaField("raw_json", "JSON"),
         bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
     ],
-    "chipax_movements": [
+    "chipax_movimientos": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("fecha", "DATE"),
+        bigquery.SchemaField("montoNeto", "FLOAT"),
+        bigquery.SchemaField("detalle", "STRING"),
+        bigquery.SchemaField("idCliente", "STRING"),
+        bigquery.SchemaField("idProducto", "STRING"),
+        bigquery.SchemaField("idLineaNegocio", "STRING"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_cartolas": [
         bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
         bigquery.SchemaField("fecha", "DATE"),
         bigquery.SchemaField("descripcion", "STRING"),
+        bigquery.SchemaField("cargo", "FLOAT"),
+        bigquery.SchemaField("abono", "FLOAT"),
+        bigquery.SchemaField("saldo", "FLOAT"),
+        bigquery.SchemaField("idCuentaCorriente", "STRING"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_compras": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("tipo", "INTEGER"),
+        bigquery.SchemaField("folio", "INTEGER"),
+        bigquery.SchemaField("fechaEmision", "DATE"),
+        bigquery.SchemaField("fechaVencimiento", "DATE"),
+        bigquery.SchemaField("razonSocial", "STRING"),
+        bigquery.SchemaField("rutEmisor", "STRING"),
+        bigquery.SchemaField("estado", "STRING"),
+        bigquery.SchemaField("montoNeto", "FLOAT"),
+        bigquery.SchemaField("iva", "FLOAT"),
+        bigquery.SchemaField("montoTotal", "FLOAT"),
+        bigquery.SchemaField("tipoCompra", "STRING"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_dtes": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("tipo", "INTEGER"),
+        bigquery.SchemaField("folio", "INTEGER"),
+        bigquery.SchemaField("fechaEmision", "DATE"),
+        bigquery.SchemaField("razonSocial", "STRING"),
+        bigquery.SchemaField("rut", "STRING"),
+        bigquery.SchemaField("montoNeto", "FLOAT"),
+        bigquery.SchemaField("iva", "FLOAT"),
+        bigquery.SchemaField("montoTotal", "FLOAT"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_gastos": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("fecha", "DATE"),
+        bigquery.SchemaField("descripcion", "STRING"),
+        bigquery.SchemaField("proveedor", "STRING"),
+        bigquery.SchemaField("responsable", "STRING"),
         bigquery.SchemaField("monto", "FLOAT"),
-        bigquery.SchemaField("tipo", "STRING"),
-        bigquery.SchemaField("cuenta", "STRING"),
-        bigquery.SchemaField("categoria", "STRING"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_remuneraciones": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("periodo", "DATE"),
+        bigquery.SchemaField("idEmpleado", "STRING"),
+        bigquery.SchemaField("nombreEmpleado", "STRING"),
+        bigquery.SchemaField("montoLiquido", "FLOAT"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_honorarios": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("numeroBoleta", "INTEGER"),
+        bigquery.SchemaField("fechaEmision", "DATE"),
+        bigquery.SchemaField("nombreEmisor", "STRING"),
+        bigquery.SchemaField("rutEmisor", "STRING"),
+        bigquery.SchemaField("montoBruto", "FLOAT"),
+        bigquery.SchemaField("montoLiquido", "FLOAT"),
+        bigquery.SchemaField("montoRetenido", "FLOAT"),
+        bigquery.SchemaField("estado", "STRING"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_cuentas": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("nombre", "STRING"),
+        bigquery.SchemaField("idParent", "STRING"),
+        bigquery.SchemaField("idTipoCuenta", "STRING"),
+        bigquery.SchemaField("raw_json", "JSON"),
+        bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
+    ],
+    "chipax_cuentas_corrientes": [
+        bigquery.SchemaField("id", "STRING", mode="REQUIRED"),
+        bigquery.SchemaField("banco", "STRING"),
+        bigquery.SchemaField("numeroCuenta", "STRING"),
+        bigquery.SchemaField("saldo", "FLOAT"),
+        bigquery.SchemaField("moneda", "STRING"),
+        bigquery.SchemaField("tipoCuenta", "STRING"),
         bigquery.SchemaField("raw_json", "JSON"),
         bigquery.SchemaField("_loaded_at", "TIMESTAMP", mode="REQUIRED"),
     ],
@@ -140,22 +230,54 @@ class BigQueryLoader:
     def _extract_fields(self, record: dict) -> dict:
         """Extrae campos comunes de un registro."""
         fields = {}
+
+        # Shopify / ML
         for key in [
             "created_at", "updated_at", "date_created", "date_closed",
             "financial_status", "fulfillment_status", "total_price",
             "subtotal_price", "total_tax", "total_discounts", "currency",
             "status", "total_amount", "currency_id", "title", "product_type",
             "category_id", "price", "available_quantity",
-            "fecha", "descripcion", "monto", "tipo", "cuenta", "categoria",
         ]:
             if key in record:
                 fields[key] = record[key]
 
-        # Campos anidados frecuentes
+        # Chipax — campos comunes
+        for key in [
+            "fecha", "descripcion", "monto", "montoNeto", "montoTotal",
+            "montoLiquido", "montoBruto", "montoRetenido", "iva",
+            "detalle", "estado", "razonSocial", "rutEmisor", "rut",
+            "tipo", "folio", "fechaEmision", "fechaVencimiento", "periodo",
+            "proveedor", "responsable", "numeroBoleta", "nombreEmisor",
+            "banco", "numeroCuenta", "saldo",
+            "cargo", "abono",
+            "tipoCompra", "idCuentaCorriente",
+        ]:
+            if key in record:
+                fields[key] = record[key]
+
+        # Campos numéricos que llegan como int → convertir a string para IDs
+        for key in ["idCliente", "idProducto", "idLineaNegocio", "idEmpleado",
+                    "idParent", "idTipoCuenta"]:
+            if key in record and record[key] is not None:
+                fields[key] = str(record[key])
+
+        # Campos anidados
         if "customer" in record and record["customer"]:
             fields["customer_email"] = record["customer"].get("email", "")
         if "buyer" in record and record["buyer"]:
             fields["buyer_id"] = str(record["buyer"].get("id", ""))
+        if "Empleado" in record and record["Empleado"]:
+            fields["nombreEmpleado"] = (
+                f"{record['Empleado'].get('nombre', '')} "
+                f"{record['Empleado'].get('apellido', '')}".strip()
+            )
+            if "idEmpleado" not in fields:
+                fields["idEmpleado"] = str(record["Empleado"].get("id", ""))
+        if "Moneda" in record and record["Moneda"]:
+            fields["moneda"] = record["Moneda"].get("moneda", "")
+        if "TipoCuentaCorriente" in record and record["TipoCuentaCorriente"]:
+            fields["tipoCuenta"] = record["TipoCuentaCorriente"].get("tipoCuenta", "")
 
         return fields
 
@@ -186,6 +308,7 @@ class BigQueryLoader:
             schema=SCHEMAS[table_name],
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
             source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+            ignore_unknown_values=True,
         )
 
         import json as _json

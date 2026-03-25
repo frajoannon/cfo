@@ -1,137 +1,145 @@
 """
 Extractor de Chipax
 -------------------
-Extrae movimientos bancarios y documentos desde la API de Chipax.
+Extrae datos financieros desde la API v2 de Chipax.
 
-NOTA: Chipax tiene una API REST privada. Si no tienes acceso a la API,
-contacta a soporte de Chipax (soporte@chipax.com) para solicitar credenciales.
-Como alternativa, este módulo también soporta carga desde CSV exportado manualmente.
+Autenticación: POST /login con app_id + secret_key → JWT token
 """
 
 import os
-import csv
 import logging
 from datetime import datetime
-from io import StringIO
 from typing import Dict, List, Optional
 
 import requests
 
 logger = logging.getLogger(__name__)
 
-CHIPAX_API_BASE = "https://api.chipax.com/v1"
+CHIPAX_API_BASE = "https://api.chipax.com/v2"
 
 
 class ChipaxExtractor:
-    """Extrae movimientos bancarios desde Chipax via API o CSV."""
+    """Extrae datos financieros desde Chipax via API v2."""
 
-    def __init__(self, api_key: str):
-        """
-        Args:
-            api_key: API key de Chipax (solicitada al equipo de soporte)
-        """
-        self.api_key = api_key
-        self.headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        }
+    def __init__(self, app_id: str, secret_key: str):
+        self.app_id = app_id
+        self.secret_key = secret_key
+        self._token = None
+        self._authenticate()
+
+    def _authenticate(self):
+        """Obtiene el JWT token haciendo POST a /login."""
+        response = requests.post(
+            f"{CHIPAX_API_BASE}/login",
+            json={"app_id": self.app_id, "secret_key": self.secret_key},
+            headers={"Content-Type": "application/json"},
+        )
+        response.raise_for_status()
+        self._token = response.json()["token"]
+        logger.info("✓ Autenticación Chipax exitosa.")
 
     def _get(self, endpoint: str, params: dict = None):
         """Hace un GET autenticado a la API de Chipax."""
         response = requests.get(
             f"{CHIPAX_API_BASE}{endpoint}",
-            headers=self.headers,
+            headers={
+                "Authorization": f"JWT {self._token}",
+                "Content-Type": "application/json",
+            },
             params=params or {},
         )
         response.raise_for_status()
         return response.json()
 
-    def get_bank_movements(
-        self,
-        since: Optional[datetime] = None,
-        until: Optional[datetime] = None,
-    ) -> List[Dict]:
-        """
-        Extrae movimientos bancarios.
+    def _extract(self, endpoint: str, label: str, params: dict = None) -> List[Dict]:
+        """Helper genérico: extrae una lista desde un endpoint."""
+        logger.info(f"Extrayendo {label} desde Chipax...")
+        try:
+            data = self._get(endpoint, params=params)
+            rows = data if isinstance(data, list) else data.get("data", data.get("items", []))
+            logger.info(f"  → {len(rows)} {label} extraídos.")
+            return rows
+        except requests.HTTPError as e:
+            logger.error(f"Error al consultar {endpoint}: {e}")
+            raise
 
-        Args:
-            since: Fecha inicio del período (inclusive)
-            until: Fecha fin del período (inclusive). Por defecto: hoy.
+    # ── Endpoints ─────────────────────────────────────────────────────────────
 
-        Returns:
-            Lista de movimientos como dicts.
-        """
+    def get_movimientos(self, since: Optional[datetime] = None, until: Optional[datetime] = None) -> List[Dict]:
+        """Asientos contables / movimientos."""
         params = {}
         if since:
             params["fecha_inicio"] = since.strftime("%Y-%m-%d")
         if until:
             params["fecha_fin"] = until.strftime("%Y-%m-%d")
+        return self._extract("/movimientos", "movimientos", params)
 
-        logger.info(f"Extrayendo movimientos de Chipax desde {since or 'el inicio'}...")
-        try:
-            data = self._get("/movimientos", params=params)
-            movements = data if isinstance(data, list) else data.get("data", [])
-            logger.info(f"  → {len(movements)} movimientos extraídos.")
-            return movements
-        except requests.HTTPError as e:
-            logger.error(f"Error al consultar Chipax API: {e}")
-            raise
+    def get_cartolas(self, since: Optional[datetime] = None, until: Optional[datetime] = None) -> List[Dict]:
+        """Movimientos bancarios (cartolas)."""
+        params = {}
+        if since:
+            params["fecha_inicio"] = since.strftime("%Y-%m-%d")
+        if until:
+            params["fecha_fin"] = until.strftime("%Y-%m-%d")
+        return self._extract("/flujo-caja/cartolas", "cartolas", params)
 
-    def get_accounts(self) -> List[Dict]:
-        """Extrae las cuentas bancarias registradas en Chipax."""
-        logger.info("Extrayendo cuentas bancarias de Chipax...")
-        data = self._get("/cuentas")
-        accounts = data if isinstance(data, list) else data.get("data", [])
-        logger.info(f"  → {len(accounts)} cuentas extraídas.")
-        return accounts
+    def get_compras(self, since: Optional[datetime] = None, until: Optional[datetime] = None) -> List[Dict]:
+        """Facturas de proveedores / compras."""
+        params = {}
+        if since:
+            params["fecha_inicio"] = since.strftime("%Y-%m-%d")
+        if until:
+            params["fecha_fin"] = until.strftime("%Y-%m-%d")
+        return self._extract("/compras", "compras", params)
 
+    def get_dtes(self, since: Optional[datetime] = None, until: Optional[datetime] = None) -> List[Dict]:
+        """Documentos tributarios electrónicos (facturas emitidas, boletas, etc.)."""
+        params = {}
+        if since:
+            params["fecha_inicio"] = since.strftime("%Y-%m-%d")
+        if until:
+            params["fecha_fin"] = until.strftime("%Y-%m-%d")
+        return self._extract("/dtes", "dtes", params)
 
-class ChipaxCSVExtractor:
-    """
-    Alternativa: carga movimientos desde un archivo CSV exportado manualmente desde Chipax.
-    Úsalo si no tienes acceso a la API de Chipax.
-    """
+    def get_gastos(self, since: Optional[datetime] = None, until: Optional[datetime] = None) -> List[Dict]:
+        """Gastos registrados."""
+        params = {}
+        if since:
+            params["fecha_inicio"] = since.strftime("%Y-%m-%d")
+        if until:
+            params["fecha_fin"] = until.strftime("%Y-%m-%d")
+        return self._extract("/gastos", "gastos", params)
 
-    def load_from_file(self, filepath: str) -> List[Dict]:
-        """
-        Carga movimientos desde un archivo CSV exportado de Chipax.
+    def get_remuneraciones(self, since: Optional[datetime] = None, until: Optional[datetime] = None) -> List[Dict]:
+        """Remuneraciones / nómina."""
+        params = {}
+        if since:
+            params["fecha_inicio"] = since.strftime("%Y-%m-%d")
+        if until:
+            params["fecha_fin"] = until.strftime("%Y-%m-%d")
+        return self._extract("/remuneraciones", "remuneraciones", params)
 
-        Args:
-            filepath: Ruta al archivo CSV
+    def get_cuentas_corrientes(self) -> List[Dict]:
+        """Saldos de cuentas bancarias."""
+        return self._extract("/cuentas-corrientes", "cuentas corrientes")
 
-        Returns:
-            Lista de movimientos como dicts.
-        """
-        logger.info(f"Cargando movimientos desde CSV: {filepath}")
-        rows = []
-        with open(filepath, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                rows.append(self._normalize_row(row))
-        logger.info(f"  → {len(rows)} movimientos cargados desde CSV.")
-        return rows
+    def get_cuentas(self) -> List[Dict]:
+        """Plan de cuentas contables."""
+        return self._extract("/cuentas", "cuentas")
 
-    def _normalize_row(self, row: dict) -> dict:
-        """Normaliza los nombres de columnas del CSV de Chipax al formato estándar."""
-        return {
-            "id": row.get("ID", ""),
-            "fecha": row.get("Fecha", ""),
-            "descripcion": row.get("Descripción", row.get("Descripcion", "")),
-            "monto": self._parse_amount(row.get("Monto", "0")),
-            "tipo": row.get("Tipo", ""),
-            "cuenta": row.get("Cuenta", ""),
-            "categoria": row.get("Categoría", row.get("Categoria", "")),
-        }
-
-    def _parse_amount(self, value: str) -> float:
-        """Convierte string de monto (ej: '$ 1.234,56') a float."""
-        cleaned = value.replace("$", "").replace(".", "").replace(",", ".").strip()
-        try:
-            return float(cleaned)
-        except ValueError:
-            return 0.0
+    def get_honorarios(self, since: Optional[datetime] = None, until: Optional[datetime] = None) -> List[Dict]:
+        """Honorarios."""
+        params = {}
+        if since:
+            params["fecha_inicio"] = since.strftime("%Y-%m-%d")
+        if until:
+            params["fecha_fin"] = until.strftime("%Y-%m-%d")
+        return self._extract("/honorarios", "honorarios", params)
 
 
 def create_from_env() -> ChipaxExtractor:
     """Crea un extractor leyendo credenciales desde variables de entorno."""
-    return ChipaxExtractor(api_key=os.environ["CHIPAX_API_KEY"])
+    return ChipaxExtractor(
+        app_id=os.environ["CHIPAX_APP_ID"],
+        secret_key=os.environ["CHIPAX_SECRET_KEY"],
+    )
