@@ -62,7 +62,7 @@ class ChipaxExtractor:
 
         try:
             while True:
-                params["offset"] = (page - 1) * 50
+                params["page"] = page
                 data = self._get(endpoint, params=params)
 
                 # Respuesta puede ser lista o dict con paginación
@@ -82,8 +82,20 @@ class ChipaxExtractor:
                     page += 1
                     time.sleep(0.5)  # Evitar rate limit
 
-            logger.info(f"  → {len(all_rows)} {label} extraídos.")
-            return all_rows
+            # Deduplicar por id (la API puede repetir registros entre páginas)
+            seen = set()
+            unique_rows = []
+            for row in all_rows:
+                row_id = row.get("id")
+                if row_id not in seen:
+                    seen.add(row_id)
+                    unique_rows.append(row)
+
+            if len(unique_rows) < len(all_rows):
+                logger.info(f"  → {len(all_rows) - len(unique_rows)} duplicados eliminados.")
+
+            logger.info(f"  → {len(unique_rows)} {label} extraídos.")
+            return unique_rows
         except requests.HTTPError as e:
             logger.error(f"Error al consultar {endpoint}: {e}")
             raise
