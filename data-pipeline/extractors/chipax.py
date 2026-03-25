@@ -52,13 +52,33 @@ class ChipaxExtractor:
         return response.json()
 
     def _extract(self, endpoint: str, label: str, params: dict = None) -> List[Dict]:
-        """Helper genérico: extrae una lista desde un endpoint."""
+        """Helper genérico: extrae todos los registros paginando automáticamente."""
         logger.info(f"Extrayendo {label} desde Chipax...")
+        params = params or {}
+        params["limit"] = 50
+        all_rows = []
+        page = 1
+
         try:
-            data = self._get(endpoint, params=params)
-            rows = data if isinstance(data, list) else data.get("data", data.get("items", []))
-            logger.info(f"  → {len(rows)} {label} extraídos.")
-            return rows
+            while True:
+                params["offset"] = (page - 1) * 50
+                data = self._get(endpoint, params=params)
+
+                # Respuesta puede ser lista o dict con paginación
+                if isinstance(data, list):
+                    all_rows.extend(data)
+                    break  # Sin paginación
+                else:
+                    rows = data.get("items", data.get("data", []))
+                    all_rows.extend(rows)
+                    pagination = data.get("paginationAttributes", {})
+                    total_pages = pagination.get("totalPages", 1)
+                    if page >= total_pages:
+                        break
+                    page += 1
+
+            logger.info(f"  → {len(all_rows)} {label} extraídos.")
+            return all_rows
         except requests.HTTPError as e:
             logger.error(f"Error al consultar {endpoint}: {e}")
             raise
